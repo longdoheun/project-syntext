@@ -1,5 +1,13 @@
+/** @jsxImportSource @emotion/react */
+import { css } from "@emotion/react";
 import React from "react";
 
 export default function Header() {
-  return <div>Header</div>;
+  return <div css={headerStyle}>Header</div>;
 }
+
+const headerStyle = css`
+  background-color: aliceblue;
+  width: 600px;
+  height: 50px;
+`;
