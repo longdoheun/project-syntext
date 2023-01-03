@@ -18,20 +18,25 @@ const warpperStyle = css`
   padding: 10px;
   margin-bottom: 10px;
   width: 100%;
+  &:hover {
+    cursor: pointer;
+  }
 `;
 
 const tagStyle = css`
   display: inline-block;
   margin: .25em 2px;
-  padding: .2em .5em .3em;
+  // margin: .25em 2px .6em;
+  //padding: .2em .5em .3em;
+  padding: .2em .5em;
   background-color: #15C39A;
   color: #FFFFFF;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   border-radius: 3px;
 `;
 
 const contentStyle = css`
-  margin: 0 0.5em 0.3em;
-  font-size: 15px;
+  margin: 0 5px 0.3em;
+  font-size: 14px;
 `;
