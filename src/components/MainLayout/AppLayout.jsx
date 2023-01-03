@@ -8,6 +8,7 @@ export default function AppLayout(props) {
 
 const warpperStyle = css`
   width: 650px;
+  height: 100%;
   @media (max-width: 900px) {
     width: 90%;
   }

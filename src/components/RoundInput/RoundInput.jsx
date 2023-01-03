@@ -45,6 +45,7 @@ const containerStyle = css`
 `;
 
 const inputStyle = css`
+  font-size: 16px;
   width: 100%;
 `;
 

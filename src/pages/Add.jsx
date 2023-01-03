@@ -18,9 +18,14 @@ export default function Add() {
     setTags(inputValue.tags.split(","));
   }, [inputValue.tags]);
 
+  // const onKeyDown = (e) => {
+  //   if (e.key == "Enter") {
+  //     setTags([...tags, inputValue.tags]);
+  //   }
+  // }
   return (
     <div css={wrapper}>
-      <h1>Plese write down your word!</h1>
+      {/* <h1 css={titleStyle}>Plese write down your word!</h1> */}
       <section css={previewStyle}>
         <div>417</div>
         <div css={wordStyle}>{inputValue.word}</div>
@@ -34,7 +39,6 @@ export default function Add() {
           <span css={tagStyle}>+</span>
         </div>
       </section>
-
       <section css={inputCon}>
         <RoundInput
           inputDesc={"단어 / 구문 입력"}
@@ -62,17 +66,22 @@ export default function Add() {
     </div>
   );
 }
+const titleStyle = css`
+  ${NotoSans}
+`;
 
 const wrapper = css`
   /* width: 600px; */
+  height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  /* align-items: center; */
+
+  /* justify-content: center; */
   gap: 20px;
 `;
 //preview style
 const previewStyle = css`
+  margin-top: 20px;
   ${NotoSans}
   width: 100%;
   background: #f6f6f6;
@@ -107,11 +116,6 @@ const tagStyle = css`
     color: #242424;
   }
 `;
-const popupStyle = css`
-  position: relative;
-  display: flex;
-`;
-
 //
 const wordStyle = css`
   ${NotoSans}
@@ -129,15 +133,17 @@ const btnStyle = css`
   padding: 10px;
   width: 100%;
   transition: 0.5s all ease-in-out;
+  background-color: #242424;
+  color: #ffffff;
   &:hover {
-    background-color: #242424;
-    color: #ffffff;
+    background-color: #ffffff;
+    color: #242424;
   }
 `;
 
 const inputCon = css`
-  margin-top: 50px;
+  margin-bottom: 50px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
 `;
