@@ -28,4 +28,13 @@ const globalStyle = css`
     width: 100%;
     height: 100%;
   }
+
+  input {
+    font-family: "inter";
+    font-size: 16px;
+    line-height: 12px;
+    background-color: transparent;
+    outline: none;
+    border: none;
+  }
 `;
