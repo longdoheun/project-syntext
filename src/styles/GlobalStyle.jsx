@@ -23,7 +23,6 @@ const globalStyle = css`
     width: 100%;
     height: 100%;
     background-color: #ffffff;
-    font-family: 'Noto Sans KR', sans-serif;
   }
   #root {
     width: 100%;
