@@ -64,7 +64,7 @@ export default function Add() {
 }
 
 const wrapper = css`
-  width: 600px;
+  /* width: 600px; */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -115,11 +115,12 @@ const popupStyle = css`
 //
 const wordStyle = css`
   ${NotoSans}
+  font-size: 32px;
 `;
 const meanStyle = css`
   ${NotoSans}
   color: #8b8b8b;
-  font-size: 12px;
+  font-size: 20px;
 `;
 
 const btnStyle = css`

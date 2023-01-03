@@ -8,6 +8,6 @@ export default function Header() {
 
 const headerStyle = css`
   background-color: aliceblue;
-  width: 600px;
+  width: 100%;
   height: 50px;
 `;
