@@ -11,7 +11,7 @@ export default function RoundInput({
 }) {
   return (
     <div css={containerStyle}>
-      <p css={descStyle}>{inputDesc}</p>
+      {inputDesc ? <p css={descStyle}>{inputDesc}</p> : null}
       <label css={labelStyle}>
         <input
           css={inputStyle}
@@ -27,10 +27,14 @@ export default function RoundInput({
 
 //inputsylte
 const labelStyle = css`
-  border: 1px solid #242424;
+  border: 1px solid #8b8b8b;
   border-radius: 5px;
   padding: 10px;
   width: 100%;
+  transition: 0.2s all ease-in-out;
+  &:hover {
+    border-color: #242424;
+  }
 `;
 
 const containerStyle = css`

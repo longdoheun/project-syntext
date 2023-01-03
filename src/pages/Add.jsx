@@ -20,7 +20,7 @@ export default function Add() {
 
   return (
     <div css={wrapper}>
-      <h1>Plese wirte down your word!</h1>
+      <h1>Plese write down your word!</h1>
       <section css={previewStyle}>
         <div>417</div>
         <div css={wordStyle}>{inputValue.word}</div>
@@ -82,10 +82,6 @@ const previewStyle = css`
   display: flex;
   flex-direction: column;
   gap: 5px;
-  transition: 0.5s all ease-in-out;
-  &:hover {
-    /* border-color: aqua; */
-  }
 `;
 const tagWrapper = css`
   margin-top: 10px;
