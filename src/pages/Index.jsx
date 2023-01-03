@@ -3,6 +3,7 @@ import { css } from "@emotion/react";
 import React, { useState } from 'react';
 import Content from "../components/Index/Content";
 import { NotoSans } from "../styles/GlobalFonts";
+import AppLayout from "../components/AppLayout";
 
 const testDatas = [
   {
@@ -33,10 +34,8 @@ const testDatas = [
 
 export default function Index() {
   const [ list, setList ] = useState(testDatas);
-
   return (
     <div css={warpperStyle}>
-      {null}
       <div css={titleStyle}>내가 기록했던 말뭉치들</div>
       <div css={subtitleStyle}>말뭉치들의 기록을 찾아보세요!</div>
       <input css={searchMenuStyle} type="text" placeholder="태그나 단어, 구문등을 입력해주세요" />
@@ -45,19 +44,28 @@ export default function Index() {
   );
 }
 
+/*
 const warpperStyle = css`
   margin-top: 20px;
   background-color: #FFFFFF;
   width: 650px;
+  @media (max-width: 900px) {
+    width: 90%;
+  }
 `;
+*/
 
 const subtitleStyle = css`
+  width: 100%;
+  text-align: left;
   ${NotoSans}
   font-size: 16px;
   font-weight: 400;
 `;
 
 const titleStyle = css`
+  width: 100%;
+  text-align: left;
   ${NotoSans}
   font-size: 32px;
   font-weight: 600;
