@@ -4,7 +4,7 @@ import { Route, Routes } from "react-router-dom";
 import MainLayout from "./components/MainLayout/MainLayout";
 import Add from "./pages/Add";
 import Daily from "./pages/Daily";
-import Index from "./pages/Main";
+import Index from "./pages/Index";
 import Memory from "./pages/Memory";
 
 function App() {
