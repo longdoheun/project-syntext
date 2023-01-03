@@ -1,5 +1,5 @@
 import React from "react";
 
-export default function Main() {
+export default function Index() {
   return <div>Main</div>;
 }
