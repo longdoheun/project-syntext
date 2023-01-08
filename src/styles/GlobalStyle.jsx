@@ -1,7 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { css, Global } from "@emotion/react";
-
-import React from "react";
+import { css, Global } from '@emotion/react';
 
 export default function GlobalStyle() {
   return <Global styles={globalStyle} />;
@@ -19,22 +17,25 @@ const globalStyle = css`
     width: 100%;
     height: 100%;
   }
+  
   body {
     width: 100%;
     height: 100%;
     background-color: #ffffff;
   }
-  #root {
-    width: 100%;
-    height: 100%;
-  }
 
   input {
-    font-family: "inter";
+    /** All input tags must 'inter' font? */
+    font-family: 'inter';
     font-size: 16px;
     line-height: 12px;
     background-color: transparent;
     outline: none;
     border: none;
+  }
+
+  #root {
+    width: 100%;
+    height: 100%;
   }
 `;

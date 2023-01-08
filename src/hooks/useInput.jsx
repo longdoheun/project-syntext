@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 export default function useInput(defaultValue) {
-  const [value, setValue] = useState(defaultValue || "");
+  const [value, setValue] = useState(defaultValue || '');
 
   const onChangeInputs = (e) => {
     setValue({
@@ -11,12 +11,14 @@ export default function useInput(defaultValue) {
   };
 
   const onChangeInput = (e) => {
-    const targetValue = e.target.value || "";
+    const targetValue = e.target.value || '';
     setValue(targetValue);
   };
 
-  const onChanage =
-    typeof defaultValue === "object" ? onChangeInputs : onChangeInput;
+  /**
+   * TODO : change 'object' to specific class types
+   */
+  const onChanage = typeof defaultValue === 'object' ? onChangeInputs : onChangeInput;
 
   return [value, onChanage];
 }

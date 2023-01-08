@@ -1,5 +1,5 @@
-import React from "react";
+import React from 'react';
 
 export default function NotFound() {
-  return <div>Memory</div>;
+  return <div>Not Fount 404!</div>;
 }

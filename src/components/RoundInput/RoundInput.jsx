@@ -1,13 +1,12 @@
 /** @jsxImportSource @emotion/react */
-import { css } from "@emotion/react";
-import React from "react";
+import { css } from '@emotion/react';
 
 export default function RoundInput({
   inputDesc,
   inputName,
   inputValue,
   inputPH,
-  inputChange,
+  inputChange
 }) {
   return (
     <div css={containerStyle}>
@@ -25,12 +24,11 @@ export default function RoundInput({
   );
 }
 
-//inputsylte
 const labelStyle = css`
+  width: 100%;
+  padding: 10px;
   border: 1px solid #8b8b8b;
   border-radius: 5px;
-  padding: 10px;
-  width: 100%;
   transition: 0.2s all ease-in-out;
   &:hover {
     border-color: #242424;
@@ -38,19 +36,19 @@ const labelStyle = css`
 `;
 
 const containerStyle = css`
-  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 2px;
-`;
-
-const inputStyle = css`
-  font-size: 16px;
   width: 100%;
 `;
 
+const inputStyle = css`
+  width: 100%;  
+  font-size: 16px;
+`;
+
 const descStyle = css`
-  font-family: "inter";
+  font-family: 'inter';
   font-size: 12px;
   font-weight: 600;
 `;

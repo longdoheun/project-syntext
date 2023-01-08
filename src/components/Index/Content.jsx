@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
-import { css } from "@emotion/react";
-import { NotoSans } from "../../styles/GlobalFonts";
+import { css } from '@emotion/react';
+import { NotoSans } from '../../styles/GlobalFonts';
 
 export default function Content(props) {
   const { tags, content } = props.metaData;
@@ -26,8 +26,6 @@ const warpperStyle = css`
 const tagStyle = css`
   display: inline-block;
   margin: .25em 2px;
-  // margin: .25em 2px .6em;
-  //padding: .2em .5em .3em;
   padding: .2em .5em;
   background-color: #15C39A;
   color: #FFFFFF;

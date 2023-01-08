@@ -1,63 +1,59 @@
 /** @jsxImportSource @emotion/react */
-import { css } from "@emotion/react";
-import React, { useEffect, useState } from "react";
-import RoundInput from "../components/RoundInput";
-import useInput from "../hooks/useInput";
-import { NotoSans } from "../styles/GlobalFonts";
+import { css } from '@emotion/react';
+import { useEffect, useState } from 'react';
+import RoundInput from '../components/RoundInput';
+import useInput from '../hooks/useInput';
+import { NotoSans } from '../styles/GlobalFonts';
+
+const RECORD_NUM_TEST = 417;
 
 export default function Add() {
   const [inputValue, onChangeInput] = useInput({
-    word: "",
-    meaning: "",
-    tags: "",
+    word: '',
+    meaning: '',
+    tags: '',
   });
 
   const [tags, setTags] = useState([]);
 
+  /**
+   * TODO : Fix bugs (blank tag)
+   */
   useEffect(() => {
-    setTags(inputValue.tags.split(","));
+    setTags(inputValue.tags.split(','));
   }, [inputValue.tags]);
 
-  // const onKeyDown = (e) => {
-  //   if (e.key == "Enter") {
-  //     setTags([...tags, inputValue.tags]);
-  //   }
-  // }
   return (
     <div css={wrapper}>
       {/* <h1 css={titleStyle}>Plese write down your word!</h1> */}
       <section css={previewStyle}>
-        <div>417</div>
+        <div>{RECORD_NUM_TEST}</div>
         <div css={wordStyle}>{inputValue.word}</div>
         <div css={meanStyle}>{inputValue.meaning}</div>
         <div css={tagWrapper}>
-          {tags.map((tag, index) => (
-            <span key={index + tag} css={tagStyle}>
-              {tag}
-            </span>
-          ))}
+          {tags.map((tag, index) => <span key={index + tag} css={tagStyle}>{tag}</span>)}
           <span css={tagStyle}>+</span>
         </div>
       </section>
-      <section css={inputCon}>
+      <section css={inputConStyle}>
         <RoundInput
-          inputDesc={"단어 / 구문 입력"}
-          inputName={"word"}
-          inputPH={"단어나 구문을 입력하세요"}
+          inputDesc={'단어 / 구문 입력'}
+          inputName={'word'}
+          inputPH={'단어나 구문을 입력하세요'}
           inputValue={inputValue.word}
           inputChange={onChangeInput}
         />
         <RoundInput
-          inputDesc={"해석"}
-          inputName={"meaning"}
-          inputPH={"뜻 풀이를 입력하세요"}
+          inputDesc={'해석'}
+          inputName={'meaning'}
+          inputPH={'뜻 풀이를 입력하세요'}
           inputValue={inputValue.meaning}
           inputChange={onChangeInput}
         />
         <RoundInput
-          inputDesc={"태그"}
-          inputName={"tags"}
-          inputPH={"','로 태그 구분하기"}
+          inputDesc={'태그'}
+          inputName={'tags'}
+          inputPH={ '쉼표(,) 로 태그 구분하기' }
           inputValue={inputValue.tags}
           inputChange={onChangeInput}
         />
@@ -66,6 +62,7 @@ export default function Add() {
     </div>
   );
 }
+
 const titleStyle = css`
   ${NotoSans}
 `;
@@ -75,75 +72,76 @@ const wrapper = css`
   height: 100%;
   display: flex;
   flex-direction: column;
-
   /* justify-content: center; */
   gap: 20px;
 `;
-//preview style
+
 const previewStyle = css`
-  margin-top: 20px;
-  ${NotoSans}
-  width: 100%;
-  background: #f6f6f6;
-  /* border: 1px solid #8b8b8b; */
-  padding: 10px;
-  border-radius: 5px;
   display: flex;
   flex-direction: column;
   gap: 5px;
+  width: 100%;
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 5px;
+  ${NotoSans}
+  background: #f6f6f6;
 `;
+
 const tagWrapper = css`
-  margin-top: 10px;
   display: flex;
-  gap: 3px;
+  flex-wrap: wrap;
+  gap: 3px;  
+  margin-top: 10px;
 `;
+
 const tagStyle = css`
+  padding: 0px 5px;
+  border: 1px solid #242424;
+  border-radius: 2px;
+  align-items: center;
+  line-height: 20px;
+  background-color: #242424;
   ${NotoSans}
   font-size: 12px;
   color: #ffff;
-
-  background-color: #242424;
-  /* background-color: aqua; */
-  line-height: 20px;
-  padding: 0px 5px;
-  border-radius: 2px;
-  border: 1px solid #242424;
   text-align: center;
-  align-items: center;
   transition: 0.2s all ease-in-out;
   &:hover {
     background-color: #ffffff;
     color: #242424;
   }
 `;
-//
+
 const wordStyle = css`
   ${NotoSans}
   font-size: 32px;
 `;
+
 const meanStyle = css`
   ${NotoSans}
-  color: #8b8b8b;
   font-size: 20px;
+  color: #8b8b8b;
 `;
 
 const btnStyle = css`
+  width: 100%;  
+  background-color: #242424;
+  padding: 10px;
   border: 1px solid #242424;
   border-radius: 5px;
-  padding: 10px;
-  width: 100%;
-  transition: 0.5s all ease-in-out;
-  background-color: #242424;
   color: #ffffff;
+  transition: 0.5s all ease-in-out;
   &:hover {
+    cursor: pointer;
     background-color: #ffffff;
     color: #242424;
   }
 `;
 
-const inputCon = css`
-  margin-bottom: 50px;
+const inputConStyle = css`
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin-bottom: 50px;
 `;
