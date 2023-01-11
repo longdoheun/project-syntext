@@ -2,15 +2,15 @@
 import { css } from '@emotion/react';
 import { NotoSans } from '../../styles/GlobalFonts';
 
-export default function Content(props) {
-  const { tags, content } = props.metaData;
+const Content = (props) => {
+  const { tags, content } = props.datas;
   return (
     <div css={warpperStyle}>
       {tags.map((elem, index) => (<span key={index} css={tagStyle}>{elem}</span>))}
       <div css={contentStyle}>{content}</div>
     </div>
   );
-}
+};
 
 const warpperStyle = css`
   ${NotoSans}
@@ -35,6 +35,8 @@ const tagStyle = css`
 `;
 
 const contentStyle = css`
-  margin: 0 5px 0.3em;
+  margin: 5px 5px 0.3em;
   font-size: 14px;
 `;
+
+export default Content;

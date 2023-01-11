@@ -8,7 +8,7 @@ import { NotoSans } from '../styles/GlobalFonts';
 const RECORD_NUM_TEST = 417;
 
 export default function Add() {
-  const [inputValue, onChangeInput] = useInput({
+  const [wordInfos, onChangeInput] = useInput({
     word: '',
     meaning: '',
     tags: '',
@@ -20,16 +20,16 @@ export default function Add() {
    * TODO : Fix bugs (blank tag)
    */
   useEffect(() => {
-    setTags(inputValue.tags.split(','));
-  }, [inputValue.tags]);
+    setTags(wordInfos.tags.split(','));
+  }, [wordInfos.tags]);
 
   return (
     <div css={wrapper}>
       {/* <h1 css={titleStyle}>Plese write down your word!</h1> */}
       <section css={previewStyle}>
         <div>{RECORD_NUM_TEST}</div>
-        <div css={wordStyle}>{inputValue.word}</div>
-        <div css={meanStyle}>{inputValue.meaning}</div>
+        <div css={wordStyle}>{wordInfos.word}</div>
+        <div css={meanStyle}>{wordInfos.meaning}</div>
         <div css={tagWrapper}>
           {tags.map((tag, index) => <span key={index + tag} css={tagStyle}>{tag}</span>)}
           <span css={tagStyle}>+</span>
@@ -40,21 +40,21 @@ export default function Add() {
           inputDesc={'단어 / 구문 입력'}
           inputName={'word'}
           inputPH={'단어나 구문을 입력하세요'}
-          inputValue={inputValue.word}
+          inputValue={wordInfos.word}
           inputChange={onChangeInput}
         />
         <RoundInput
           inputDesc={'해석'}
           inputName={'meaning'}
           inputPH={'뜻 풀이를 입력하세요'}
-          inputValue={inputValue.meaning}
+          inputValue={wordInfos.meaning}
           inputChange={onChangeInput}
         />
         <RoundInput
           inputDesc={'태그'}
           inputName={'tags'}
           inputPH={ '쉼표(,) 로 태그 구분하기' }
-          inputValue={inputValue.tags}
+          inputValue={wordInfos.tags}
           inputChange={onChangeInput}
         />
         <button css={btnStyle}>추가하기</button>
