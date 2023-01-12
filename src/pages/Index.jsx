@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { css } from '@emotion/react';
+import { css, keyframes } from '@emotion/react';
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import Content from '../components/Index/Content';
@@ -7,21 +7,31 @@ import { NotoSans } from '../styles/GlobalFonts';
 
 export default function Index() {
   const [ bookmarks, setBookmarks ] = useState([]);
-  const [ isScrollThrottling, setScrollIsThrottling ] = useState(false);
 
   const [ isDesktopLayout, setIsDesktopLayout ] = useState(window.innerWidth > 900 ? true : false);
+  const [ isScrollThrottling, setScrollIsThrottling ] = useState(false);
   const [ isResizeThrottling, setResizeIsThrottling ] = useState(false);
 
-  const gridRef = useRef(null);
+  const [ gridCol1Datas, setGridCol1Datas ] = useState([]);
+  const [ gridCol2Datas, setGridCol2Datas ] = useState([]);
+  const [ gridCol3Datas, setGridCol3Datas ] = useState([]);
+  const [ renderedCount, setReneredCount ] = useState(0);
+
+  const layoutRef = useRef(null);
+  const gridCol1Ref = useRef(null);
+  const gridCol2Ref = useRef(null);
+  const gridCol3Ref = useRef(null);
   
   const desktopLayout = (
-    <div>
-      This is desktop layout!
+    <div ref={layoutRef} css={desktopLayoutStyle}>
+      <div ref={gridCol1Ref} id="gird-col-1">{!gridCol1Datas ? null : gridCol1Datas.map((data, index) => <Content key={index} datas={data} />)}</div>
+      <div ref={gridCol2Ref} id="gird-col-2">{!gridCol2Datas ? null : gridCol2Datas.map((data, index) => <Content key={index} datas={data} />)}</div>
+      <div ref={gridCol3Ref} id="grid-col-3">{!gridCol3Datas ? null : gridCol3Datas.map((data, index) => <Content key={index} datas={data} />)}</div>
     </div>
   );
   
   const mobileLayout = (
-    <div ref={gridRef}>
+    <div ref={layoutRef}>
       {bookmarks.map((contents, index) => <Content key={index} datas={contents}/>)}
     </div>
   );
@@ -43,6 +53,7 @@ export default function Index() {
       .then(res => {
         console.log(res);
         setBookmarks([...bookmarks, ...res.data]);
+        
       })
       .catch(e => {
         console.log(e);
@@ -70,17 +81,17 @@ export default function Index() {
     if (window.innerWidth > 900 && isDesktopLayout === false) {
       if (!isResizeThrottling) {
         setResizeIsThrottling(true);
-        setTimeout(() => {
+        setTimeout(async () => {
           setIsDesktopLayout(true);
-          setResizeIsThrottling(false);    
+          setResizeIsThrottling(false);
         }, 300);
       }
     } else if (window.innerWidth <= 900 && isDesktopLayout === true) {
       if (!isResizeThrottling) {
         setResizeIsThrottling(true);
-        setTimeout(() => {
+        setTimeout(async () => {
           setIsDesktopLayout(false);
-          setResizeIsThrottling(false);    
+          setResizeIsThrottling(false);
         }, 300);
       }
     }
@@ -91,16 +102,66 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
+    if ((typeof bookmarks[renderedCount] === 'undefined') || (window.innerWidth <= 900)) {
+      return;
     }
+
+    /** 
+     * NOTICE : Critical point
+     * when resizing is occured from mobile size to desktop in window size's boundery(+-900px),
+     * ref of grid1, 2, 3 is undefined. so undefined reference error occured.
+     * 
+     * useCallback could be solution of this problem
+     * refernce : https://velog.io/@shmoon2917/useEffect-%EC%9D%98%EC%A1%B4%EC%84%B1%EC%97%90-ref%EB%A5%BC-%EB%8B%B4%EC%9D%84-%EB%95%8C%EB%A7%88%EB%8B%A4-%EC%B0%9C%EC%B0%9C%ED%95%98%EC%8B%A0-%EB%B6%84%EB%93%A4%EC%9D%84-%EC%9C%84%ED%95%B4 
+     */  
+    const gridSizes = [
+      gridCol1Ref.current.scrollHeight ? gridCol1Ref.current.scrollHeight : 0,
+      gridCol2Ref.current.scrollHeight ? gridCol2Ref.current.scrollHeight : 0,
+      gridCol3Ref.current.scrollHeight ? gridCol3Ref.current.scrollHeight : 0
+    ];
+
+    switch (gridSizes.indexOf(Math.min(...gridSizes))) {
+      case 0:
+        setGridCol1Datas([...gridCol1Datas, bookmarks[renderedCount]]);
+        setReneredCount(renderedCount + 1);
+        break;
+      case 1:
+        setGridCol2Datas([...gridCol2Datas, bookmarks[renderedCount]]);
+        setReneredCount(renderedCount + 1);
+        break;
+      case 2:
+        setGridCol3Datas([...gridCol3Datas, bookmarks[renderedCount]]);
+        setReneredCount(renderedCount + 1);
+        break;
+      default:
+        break;
+    }
+  }, [bookmarks, renderedCount]);
+
+  /*
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, [isDesktopLayout]);
+  */
 
   useEffect(() => {
+    if (layoutRef.current.scrollHeight < window.innerHeight) {
+      getBookmarksAndUpdate(3);
+    }
+    /*
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isScrollThrottling, bookmarks]);
+    */
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+    }
+  });
+  // NOTICE : Bugs in sometime
+  //}, [isScrollThrottling, bookmarks]);
 
   return (
     <>
@@ -146,14 +207,18 @@ const searchMenuBarStlye = css`
   color: #1e1e1e;
 `;
 
-/* NOTICE : No more used, delete later
-const listContainerStyle = css`
+const floating = keyframes`
+  from {
+      opacity: 1;  
+  }
+  to {
+    opacity: 0;
+  }
+`
+
+const desktopLayoutStyle = css`
   display: grid;
   align-items: start;
   grid-template-columns: repeat(3, 1fr);
   column-gap: 10px;
-  @media (max-width: 900px) {
-    display: block;
-  }
 `;
-*/
