@@ -7,12 +7,29 @@ import { NotoSans } from '../styles/GlobalFonts';
 
 export default function Index() {
   const [ bookmarks, setBookmarks ] = useState([]);
-  const [ isThrottling, setIsThrottling ] = useState(false);
+  const [ isScrollThrottling, setScrollIsThrottling ] = useState(false);
+
+  const [ isDesktopLayout, setIsDesktopLayout ] = useState(window.innerWidth > 900 ? true : false);
+  const [ isResizeThrottling, setResizeIsThrottling ] = useState(false);
 
   const gridRef = useRef(null);
+  
+  const desktopLayout = (
+    <div>
+      This is desktop layout!
+    </div>
+  );
+  
+  const mobileLayout = (
+    <div ref={gridRef}>
+      {bookmarks.map((contents, index) => <Content key={index} datas={contents}/>)}
+    </div>
+  );
+
+  let lastScrollY = 0;
 
   const getBookmarksAndUpdate = (maxReqCount) => {
-    if (isThrottling) {
+    if (isScrollThrottling) {
       return;
     }
     const config = {
@@ -22,36 +39,50 @@ export default function Index() {
         size: maxReqCount
       }
     };
-    axios.get('http://localhost:7777/test', config)
+    axios.get('http://localhost:7777/test/bookmarks', config)
       .then(res => {
         console.log(res);
         setBookmarks([...bookmarks, ...res.data]);
-        setIsThrottling(false);
       })
       .catch(e => {
         console.log(e);
+        console.log(`Request Error : ${e.response.data}`);
       });
   };
 
   const handleScroll = () => {
+    const isScrollDown = window.scrollY > lastScrollY ? true : false;
     const currentScrollPosY = document.documentElement.scrollTop;
     const windowHeight = window.innerHeight;
     const fullHeight = document.body.scrollHeight;
+    lastScrollY = window.scrollY;
     
-    let debugFlag = false;
-    if (debugFlag) {
-      console.log('window.scrollY : ' + window.scrollY);
-      console.log('window.innerHeight : ' + windowHeight);
-      console.log('document.documentElement.scrollTop : ' + document.documentElement.scrollTop);
-      console.log('document.body.scrollHeight : ' + document.body.scrollHeight);
-      console.log('document.documentElement.scrollHeight : ' + document.documentElement.scrollHeight);
-    }
-    
-    if (!isThrottling && ((currentScrollPosY + windowHeight >= fullHeight - 100) || (window.scrollY >= document.documentElement.scrollHeight * 0.7))) {
-      setIsThrottling(true);
+    if (!isScrollThrottling && isScrollDown && ((currentScrollPosY + windowHeight >= fullHeight - 100) || (lastScrollY >= document.documentElement.scrollHeight * 0.7))) {
+      setScrollIsThrottling(true);
       setTimeout(async () => {
         getBookmarksAndUpdate(3);
+        setScrollIsThrottling(false);
       }, 300);
+    }
+  };
+
+  const handleResize = () => {
+    if (window.innerWidth > 900 && isDesktopLayout === false) {
+      if (!isResizeThrottling) {
+        setResizeIsThrottling(true);
+        setTimeout(() => {
+          setIsDesktopLayout(true);
+          setResizeIsThrottling(false);    
+        }, 300);
+      }
+    } else if (window.innerWidth <= 900 && isDesktopLayout === true) {
+      if (!isResizeThrottling) {
+        setResizeIsThrottling(true);
+        setTimeout(() => {
+          setIsDesktopLayout(false);
+          setResizeIsThrottling(false);    
+        }, 300);
+      }
     }
   };
 
@@ -60,22 +91,27 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    }
+  }, [isDesktopLayout]);
+
+  useEffect(() => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isThrottling, bookmarks]);
+  }, [isScrollThrottling, bookmarks]);
 
   return (
     <>
-      <div css={titleStlye}>내가 기록했던 말뭉치들</div>
+      <div css={titleStlye}>북마크</div>
       <div css={subtitleStlye}>말뭉치들의 기록을 찾아보세요!</div>
       <input
         css={searchMenuBarStlye}
         type="text"
         placeholder="태그나 단어, 구문등을 입력해주세요"
       />
-      <div css={listContainerStyle} ref={gridRef}>
-        {bookmarks.map((contents, index) => <Content key={index} datas={contents}/>)}
-      </div>
+      {isDesktopLayout ? desktopLayout : mobileLayout}
     </>
   );
 };
@@ -110,6 +146,7 @@ const searchMenuBarStlye = css`
   color: #1e1e1e;
 `;
 
+/* NOTICE : No more used, delete later
 const listContainerStyle = css`
   display: grid;
   align-items: start;
@@ -119,3 +156,4 @@ const listContainerStyle = css`
     display: block;
   }
 `;
+*/
