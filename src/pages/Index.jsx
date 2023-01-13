@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { css, keyframes } from '@emotion/react';
+import { css } from '@emotion/react';
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import Content from '../components/Index/Content';
@@ -18,15 +18,40 @@ export default function Index() {
   const [ renderedCount, setReneredCount ] = useState(0);
 
   const layoutRef = useRef(null);
-  const gridCol1Ref = useRef(null);
-  const gridCol2Ref = useRef(null);
-  const gridCol3Ref = useRef(null);
+  const gridRefs = useRef([]);
   
+  const routine1 = () => {
+
+    if (true) {
+      const gridSizes = [
+        gridRefs.current[0].scrollHeight,
+        gridRefs.current[1].scrollHeight,
+        gridRefs.current[2].scrollHeight
+      ];
+      switch (gridSizes.indexOf(Math.min(...gridSizes))) {
+        case 0:
+          setGridCol1Datas([...gridCol1Datas, bookmarks[renderedCount]]);
+          setReneredCount(renderedCount + 1);
+          break;
+        case 1:
+          setGridCol2Datas([...gridCol2Datas, bookmarks[renderedCount]]);
+          setReneredCount(renderedCount + 1);
+          break;
+        case 2:
+          setGridCol3Datas([...gridCol3Datas, bookmarks[renderedCount]]);
+          setReneredCount(renderedCount + 1);
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
   const desktopLayout = (
     <div ref={layoutRef} css={desktopLayoutStyle}>
-      <div ref={gridCol1Ref} id="gird-col-1">{!gridCol1Datas ? null : gridCol1Datas.map((data, index) => <Content key={index} datas={data} />)}</div>
-      <div ref={gridCol2Ref} id="gird-col-2">{!gridCol2Datas ? null : gridCol2Datas.map((data, index) => <Content key={index} datas={data} />)}</div>
-      <div ref={gridCol3Ref} id="grid-col-3">{!gridCol3Datas ? null : gridCol3Datas.map((data, index) => <Content key={index} datas={data} />)}</div>
+      <div ref={(elem) => gridRefs.current[0] = elem} id="gird-col-1">{!gridCol1Datas ? null : gridCol1Datas.map((data, index) => <Content key={index} datas={data} />)}</div>
+      <div ref={(elem) => gridRefs.current[1] = elem} id="grid-col-3">{!gridCol2Datas ? null : gridCol2Datas.map((data, index) => <Content key={index} datas={data} />)}</div>
+      <div ref={(elem) => gridRefs.current[2] = elem} id="gird-col-2">{!gridCol3Datas ? null : gridCol3Datas.map((data, index) => <Content key={index} datas={data} />)}</div>
     </div>
   );
   
@@ -53,7 +78,6 @@ export default function Index() {
       .then(res => {
         console.log(res);
         setBookmarks([...bookmarks, ...res.data]);
-        
       })
       .catch(e => {
         console.log(e);
@@ -67,7 +91,6 @@ export default function Index() {
     const windowHeight = window.innerHeight;
     const fullHeight = document.body.scrollHeight;
     lastScrollY = window.scrollY;
-    
     if (!isScrollThrottling && isScrollDown && ((currentScrollPosY + windowHeight >= fullHeight - 100) || (lastScrollY >= document.documentElement.scrollHeight * 0.7))) {
       setScrollIsThrottling(true);
       setTimeout(async () => {
@@ -101,25 +124,26 @@ export default function Index() {
     getBookmarksAndUpdate(15);
   }, []);
 
-  useEffect(() => {
+  const tryDesktopRender = () => {
     if ((typeof bookmarks[renderedCount] === 'undefined') || (window.innerWidth <= 900)) {
       return;
     }
 
-    /** 
+    /**
+     *  
      * NOTICE : Critical point
      * when resizing is occured from mobile size to desktop in window size's boundery(+-900px),
      * ref of grid1, 2, 3 is undefined. so undefined reference error occured.
      * 
-     * useCallback could be solution of this problem
-     * refernce : https://velog.io/@shmoon2917/useEffect-%EC%9D%98%EC%A1%B4%EC%84%B1%EC%97%90-ref%EB%A5%BC-%EB%8B%B4%EC%9D%84-%EB%95%8C%EB%A7%88%EB%8B%A4-%EC%B0%9C%EC%B0%9C%ED%95%98%EC%8B%A0-%EB%B6%84%EB%93%A4%EC%9D%84-%EC%9C%84%ED%95%B4 
-     */  
+     */
+    if (!gridRefs.current[0] || !gridRefs.current[1] || !gridRefs.current[0]) {
+      return;
+    }
     const gridSizes = [
-      gridCol1Ref.current.scrollHeight ? gridCol1Ref.current.scrollHeight : 0,
-      gridCol2Ref.current.scrollHeight ? gridCol2Ref.current.scrollHeight : 0,
-      gridCol3Ref.current.scrollHeight ? gridCol3Ref.current.scrollHeight : 0
+      gridRefs.current[0].scrollHeight,
+      gridRefs.current[1].scrollHeight,
+      gridRefs.current[2].scrollHeight
     ];
-
     switch (gridSizes.indexOf(Math.min(...gridSizes))) {
       case 0:
         setGridCol1Datas([...gridCol1Datas, bookmarks[renderedCount]]);
@@ -136,33 +160,24 @@ export default function Index() {
       default:
         break;
     }
-  }, [bookmarks, renderedCount]);
+  };
 
-  /*
   useEffect(() => {
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [isDesktopLayout]);
-  */
+    tryDesktopRender();
+  }, [bookmarks, renderedCount]);
 
   useEffect(() => {
     if (layoutRef.current.scrollHeight < window.innerHeight) {
       getBookmarksAndUpdate(3);
     }
-    /*
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-    */
     window.addEventListener('scroll', handleScroll);
     window.addEventListener('resize', handleResize);
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
+      tryDesktopRender(); // NOTICE : Hack
     }
   });
-  // NOTICE : Bugs in sometime
-  //}, [isScrollThrottling, bookmarks]);
-
   return (
     <>
       <div css={titleStlye}>북마크</div>
@@ -206,15 +221,6 @@ const searchMenuBarStlye = css`
   font-weight: 400;
   color: #1e1e1e;
 `;
-
-const floating = keyframes`
-  from {
-      opacity: 1;  
-  }
-  to {
-    opacity: 0;
-  }
-`
 
 const desktopLayoutStyle = css`
   display: grid;
