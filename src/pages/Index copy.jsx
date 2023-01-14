@@ -7,50 +7,148 @@ import { NotoSans } from '../styles/GlobalFonts';
 
 export default function Index() {
   const [ bookmarks, setBookmarks ] = useState([]);
+
   const [ isDesktopLayout, setIsDesktopLayout ] = useState(window.innerWidth > 900 ? true : false);
   const [ isScrollThrottling, setScrollIsThrottling ] = useState(false);
   const [ isResizeThrottling, setResizeIsThrottling ] = useState(false);
-  const [ renderedCount, setReneredCount ] = useState(0);
+
   const [ gridCol1Datas, setGridCol1Datas ] = useState([]);
   const [ gridCol2Datas, setGridCol2Datas ] = useState([]);
   const [ gridCol3Datas, setGridCol3Datas ] = useState([]);
-  const [ girdUpdateFlag, setGridUpdateFlag ] = useState({ 
-    col1: false,
-    col2: false,
-    col3: false
-  });
-  
+  const [ renderedCount, setReneredCount ] = useState(0);
+
   const layoutRef = useRef(null);
   const gridRefs = useRef([]);
 
-  let lastScrollY = 0;
+  const [ data, setData ] = useState(0);
+  
+  useEffect(() => {
+    console.log('gridRefs.current');
+    console.log(gridRefs.current);
+  });
 
-  const girdRefCallbackCol1 = useCallback((node) => {
+  const setRef1 = useCallback((node) => {
     gridRefs.current[0] = node;
+    console.log(gridRefs.current);
     if (node !== null) {
-      setGridUpdateFlag({ ...girdUpdateFlag, col1: true });
+      setData(data + 1);
+      if (!bookmarks || (typeof bookmarks[renderedCount] === 'undefined') || (window.innerWidth <= 900)) {
+        console.log('early exist for no bookmarks or mobile height!');
+        return;
+      }
+      if (!gridRefs.current[0] || !gridRefs.current[1] || !gridRefs.current[0]) {
+        console.log('early exist for no grid refs!');
+        return;
+      }
+      const gridSizes = [
+        gridRefs.current[0].scrollHeight,
+        gridRefs.current[1].scrollHeight,
+        gridRefs.current[2].scrollHeight
+      ];
+      switch (gridSizes.indexOf(Math.min(...gridSizes))) {
+        case 0:
+          setGridCol1Datas([...gridCol1Datas, bookmarks[renderedCount]]);
+          setReneredCount(renderedCount + 1);
+          break;
+        case 1:
+          setGridCol2Datas([...gridCol2Datas, bookmarks[renderedCount]]);
+          setReneredCount(renderedCount + 1);
+          break;
+        case 2:
+          setGridCol3Datas([...gridCol3Datas, bookmarks[renderedCount]]);
+          setReneredCount(renderedCount + 1);
+          break;
+        default:
+          break;
+      }
+    } else {
+      console.log('ref attached!');
     }
-  }, [layoutRef, bookmarks, renderedCount]);
+  }, [layoutRef, bookmarks]);
 
-  const girdRefCallbackCol2 = useCallback((node) => {
-    gridRefs.current[1] = node;
+  const setRef2 = useCallback((node) => {
+    gridRefs.current[0] = node;
+    console.log(gridRefs.current);
     if (node !== null) {
-      setGridUpdateFlag({ ...girdUpdateFlag, col2: true });
+      setData(data + 1);
+      if (!bookmarks || (typeof bookmarks[renderedCount] === 'undefined') || (window.innerWidth <= 900)) {
+        console.log('early exist for no bookmarks or mobile height!');
+        return;
+      }
+      if (!gridRefs.current[0] || !gridRefs.current[1] || !gridRefs.current[0]) {
+        console.log('early exist for no grid refs!');
+        return;
+      }
+      const gridSizes = [
+        gridRefs.current[0].scrollHeight,
+        gridRefs.current[1].scrollHeight,
+        gridRefs.current[2].scrollHeight
+      ];
+      switch (gridSizes.indexOf(Math.min(...gridSizes))) {
+        case 0:
+          setGridCol1Datas([...gridCol1Datas, bookmarks[renderedCount]]);
+          setReneredCount(renderedCount + 1);
+          break;
+        case 1:
+          setGridCol2Datas([...gridCol2Datas, bookmarks[renderedCount]]);
+          setReneredCount(renderedCount + 1);
+          break;
+        case 2:
+          setGridCol3Datas([...gridCol3Datas, bookmarks[renderedCount]]);
+          setReneredCount(renderedCount + 1);
+          break;
+        default:
+          break;
+      }
+    } else {
+      console.log('ref attached!');
     }
-  }, [layoutRef, bookmarks, renderedCount]);
+  }, [layoutRef, bookmarks]);
 
-  const girdRefCallbackCol3 = useCallback((node) => {
-    gridRefs.current[2] = node;
+  const setRef3 = useCallback((node) => {
+    gridRefs.current[0] = node;
+    console.log(gridRefs.current);
     if (node !== null) {
-      setGridUpdateFlag({ ...girdUpdateFlag, col3: true });
+      setData(data + 1);
+      if (!bookmarks || (typeof bookmarks[renderedCount] === 'undefined') || (window.innerWidth <= 900)) {
+        console.log('early exist for no bookmarks or mobile height!');
+        return;
+      }
+      if (!gridRefs.current[0] || !gridRefs.current[1] || !gridRefs.current[0]) {
+        console.log('early exist for no grid refs!');
+        return;
+      }
+      const gridSizes = [
+        gridRefs.current[0].scrollHeight,
+        gridRefs.current[1].scrollHeight,
+        gridRefs.current[2].scrollHeight
+      ];
+      switch (gridSizes.indexOf(Math.min(...gridSizes))) {
+        case 0:
+          setGridCol1Datas([...gridCol1Datas, bookmarks[renderedCount]]);
+          setReneredCount(renderedCount + 1);
+          break;
+        case 1:
+          setGridCol2Datas([...gridCol2Datas, bookmarks[renderedCount]]);
+          setReneredCount(renderedCount + 1);
+          break;
+        case 2:
+          setGridCol3Datas([...gridCol3Datas, bookmarks[renderedCount]]);
+          setReneredCount(renderedCount + 1);
+          break;
+        default:
+          break;
+      }
+    } else {
+      console.log('ref attached!');
     }
-  }, [layoutRef, bookmarks, renderedCount]);
+  }, [layoutRef, bookmarks]);
 
   const desktopLayout = (
     <div ref={layoutRef} css={desktopLayoutStyle}>
-      <div ref={girdRefCallbackCol1} id="gird-col-1">{!gridCol1Datas ? null : gridCol1Datas.map((data, index) => <Content key={index} datas={data} />)}</div>
-      <div ref={girdRefCallbackCol2} id="grid-col-3">{!gridCol2Datas ? null : gridCol2Datas.map((data, index) => <Content key={index} datas={data} />)}</div>
-      <div ref={girdRefCallbackCol3} id="gird-col-2">{!gridCol3Datas ? null : gridCol3Datas.map((data, index) => <Content key={index} datas={data} />)}</div>
+      <div ref={setRef1} id="gird-col-1">{!gridCol1Datas ? null : gridCol1Datas.map((data, index) => <Content key={index} datas={data} />)}</div>
+      <div ref={setRef2} id="grid-col-3">{!gridCol2Datas ? null : gridCol2Datas.map((data, index) => <Content key={index} datas={data} />)}</div>
+      <div ref={setRef3} id="gird-col-2">{!gridCol3Datas ? null : gridCol3Datas.map((data, index) => <Content key={index} datas={data} />)}</div>
     </div>
   );
   
@@ -59,6 +157,8 @@ export default function Index() {
       {bookmarks.map((contents, index) => <Content key={index} datas={contents}/>)}
     </div>
   );
+
+  let lastScrollY = 0;
 
   const getBookmarksAndUpdate = (maxReqCount) => {
     if (isScrollThrottling) {
@@ -76,8 +176,8 @@ export default function Index() {
         setBookmarks([...bookmarks, ...res.data]);
       })
       .catch(e => {
-        console.log(e);
-        console.log(`Request Error : ${e.response.data}`);
+        //console.log(e);
+        //console.log(`Request Error : ${e.response.data}`);
       });
   };
 
@@ -124,6 +224,13 @@ export default function Index() {
     if ((typeof bookmarks[renderedCount] === 'undefined') || (window.innerWidth <= 900)) {
       return;
     }
+    /**
+     *  
+     * NOTICE : Critical point
+     * when resizing is occured from mobile size to desktop in window size's boundery(+-900px),
+     * ref of grid1, 2, 3 is undefined. so undefined reference error occured.
+     * 
+     */
     if (!gridRefs.current[0] || !gridRefs.current[1] || !gridRefs.current[0]) {
       return;
     }
@@ -132,7 +239,6 @@ export default function Index() {
       gridRefs.current[1].scrollHeight,
       gridRefs.current[2].scrollHeight
     ];
-    console.log(gridSizes);
     switch (gridSizes.indexOf(Math.min(...gridSizes))) {
       case 0:
         setGridCol1Datas([...gridCol1Datas, bookmarks[renderedCount]]);
@@ -149,7 +255,7 @@ export default function Index() {
       default:
         break;
     }
-  }, [girdUpdateFlag]);
+  }, [bookmarks, renderedCount]);
 
   useEffect(() => {
     if (layoutRef.current.scrollHeight < window.innerHeight) {
@@ -162,7 +268,6 @@ export default function Index() {
       window.removeEventListener('resize', handleResize);
     }
   });
-  
   return (
     <>
       <div css={titleStlye}>북마크</div>
@@ -172,6 +277,7 @@ export default function Index() {
         type="text"
         placeholder="태그나 단어, 구문등을 입력해주세요"
       />
+      {isDesktopLayout ? data : null}
       {isDesktopLayout ? desktopLayout : mobileLayout}
     </>
   );
