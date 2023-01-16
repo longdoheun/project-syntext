@@ -16,12 +16,11 @@ export default function Index() {
   const [ searchQuery, setSearchQuery ] = useState('');
   const [ lastInputValue, setLastInputValue ] = useState('');
   const [ isTypeing, setIsTyping ] = useState(false);
-  const [ isSended, setIsSended ] = useState(false);
+  const [ isPossibleToSendReq, setIsPossibleToSendReq ] = useState(true);
+  const [ requestFailedCount, setRequestFailedCount ] = useState(0);
   
   const layoutRef = useRef(null);
   const gridRefs = useRef([]);
-
-  let lastScrollY = 0;
 
   const girdRefCallbackCol1 = useCallback((node) => {
     gridRefs.current[0] = node;
@@ -37,10 +36,8 @@ export default function Index() {
          * -> change this code later
          */
         setReneredCount(0);
-        setGridRerenderFlag(girdRerenderFlag ? 0 : 1);
-      } else {
-        setGridRerenderFlag(girdRerenderFlag ? 0 : 1);
       }
+      setGridRerenderFlag(girdRerenderFlag ? 0 : 1);
     }
     setLastInputValue(searchQuery);
   }, [layoutRef, isDesktopLayout, bookmarks, searchQuery]);
@@ -83,22 +80,18 @@ export default function Index() {
         setBookmarks([...bookmarks, ...res.data]);
       })
       .catch(e => {
+        setRequestFailedCount(requestFailedCount + 1);
         console.log(e);
         console.log(`Request Error : ${e.response.data}`);
       });
   };
 
   const handleScroll = () => {
-    const isScrollDown = window.scrollY > lastScrollY ? true : false;
-    const currentScrollPosY = document.documentElement.scrollTop;
-    const windowHeight = window.innerHeight;
-    const fullHeight = document.body.scrollHeight;
-    lastScrollY = window.scrollY;
-    if (!isScrollThrottling && isScrollDown && ((currentScrollPosY + windowHeight >= fullHeight - 100) || (lastScrollY >= document.documentElement.scrollHeight * 0.7))) {
+    if (isPossibleToSendReq && !isScrollThrottling && (document.documentElement.scrollTop + document.documentElement.clientHeight >= document.body.scrollHeight * 0.6)) {
       setScrollIsThrottling(true);
       setTimeout(async () => {
-        getBookmarksAndUpdate(6);
         setScrollIsThrottling(false);
+        getBookmarksAndUpdate(6);
       }, 300);
     }
   };
@@ -133,7 +126,7 @@ export default function Index() {
   };
 
   useEffect(() => {
-    getBookmarksAndUpdate(15);
+    getBookmarksAndUpdate(30);
   }, []);
   
   useEffect(() => {
@@ -179,18 +172,21 @@ export default function Index() {
   useEffect(() => {
     window.addEventListener('scroll', handleScroll);
     window.addEventListener('resize', handleResize);
+    if (isPossibleToSendReq && requestFailedCount >= 3) {
+      setIsPossibleToSendReq(false);
+      setTimeout(async () => {
+        setIsPossibleToSendReq(true);
+        requestFailedCount(0);
+      }, 5000);
+    }
     /**
      * NOTICE : Makes too much server connection - fix later
      */
-    if (layoutRef.current.scrollHeight < window.innerHeight * 0.7) {
+    if (isPossibleToSendReq && !isScrollThrottling && (document.documentElement.scrollTop + document.documentElement.clientHeight >= document.body.scrollHeight * 0.6)) {
       //getBookmarksAndUpdate(6);
-      if (!isSended) {
-        setIsSended(true);
-        setTimeout(async () => {
-          getBookmarksAndUpdate(6);
-          setIsSended(false);
-        }, 100);
-      }
+      setTimeout(async () => {
+        getBookmarksAndUpdate(6);
+      }, 300);
     }
     return () => {
       window.removeEventListener('scroll', handleScroll);
