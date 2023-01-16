@@ -7,18 +7,16 @@ import { NotoSans } from '../styles/GlobalFonts';
 
 export default function Index() {
   const [ bookmarks, setBookmarks ] = useState([]);
-  const [ isDesktopLayout, setIsDesktopLayout ] = useState(window.innerWidth > 900 ? true : false);
+  const [ isDesktopLayout, setIsDesktopLayout ] = useState(window.innerWidth > 900);
   const [ isScrollThrottling, setScrollIsThrottling ] = useState(false);
   const [ isResizeThrottling, setResizeIsThrottling ] = useState(false);
   const [ renderedCount, setReneredCount ] = useState(0);
-  const [ gridCol1Datas, setGridCol1Datas ] = useState([]);
-  const [ gridCol2Datas, setGridCol2Datas ] = useState([]);
-  const [ gridCol3Datas, setGridCol3Datas ] = useState([]);
-  const [ girdUpdateFlag, setGridUpdateFlag ] = useState({ 
-    col1: false,
-    col2: false,
-    col3: false
-  });
+  const [ gridDatas, setGridDatas ] = useState([[], [], []]);
+  const [ girdRerenderFlag, setGridRerenderFlag ] = useState(0);
+  const [ searchQuery, setSearchQuery ] = useState('');
+  const [ lastInputValue, setLastInputValue ] = useState('');
+  const [ isTypeing, setIsTyping ] = useState(false);
+  const [ isSended, setIsSended ] = useState(false);
   
   const layoutRef = useRef(null);
   const gridRefs = useRef([]);
@@ -28,35 +26,44 @@ export default function Index() {
   const girdRefCallbackCol1 = useCallback((node) => {
     gridRefs.current[0] = node;
     if (node !== null) {
-      setGridUpdateFlag({ ...girdUpdateFlag, col1: true });
+      if (!!searchQuery || (!searchQuery && !!lastInputValue)) {
+        /**
+         * NOTICE : Cause some bugs when search by some words mmakes result with none in mobile display 
+         * -> switching from mobile to desktop resize makes bugs
+         */
+        setGridDatas([[], [], []]);
+        /**
+         * NOTICE : Double dependency tracking on useEffect
+         * -> change this code later
+         */
+        setReneredCount(0);
+        setGridRerenderFlag(girdRerenderFlag ? 0 : 1);
+      } else {
+        setGridRerenderFlag(girdRerenderFlag ? 0 : 1);
+      }
     }
-  }, [layoutRef, bookmarks, renderedCount]);
+    setLastInputValue(searchQuery);
+  }, [layoutRef, isDesktopLayout, bookmarks, searchQuery]);
 
   const girdRefCallbackCol2 = useCallback((node) => {
     gridRefs.current[1] = node;
-    if (node !== null) {
-      setGridUpdateFlag({ ...girdUpdateFlag, col2: true });
-    }
-  }, [layoutRef, bookmarks, renderedCount]);
+  }, [layoutRef, bookmarks, searchQuery]);
 
   const girdRefCallbackCol3 = useCallback((node) => {
     gridRefs.current[2] = node;
-    if (node !== null) {
-      setGridUpdateFlag({ ...girdUpdateFlag, col3: true });
-    }
-  }, [layoutRef, bookmarks, renderedCount]);
+  }, [layoutRef, bookmarks, searchQuery]);
 
   const desktopLayout = (
     <div ref={layoutRef} css={desktopLayoutStyle}>
-      <div ref={girdRefCallbackCol1} id="gird-col-1">{!gridCol1Datas ? null : gridCol1Datas.map((data, index) => <Content key={index} datas={data} />)}</div>
-      <div ref={girdRefCallbackCol2} id="grid-col-3">{!gridCol2Datas ? null : gridCol2Datas.map((data, index) => <Content key={index} datas={data} />)}</div>
-      <div ref={girdRefCallbackCol3} id="gird-col-2">{!gridCol3Datas ? null : gridCol3Datas.map((data, index) => <Content key={index} datas={data} />)}</div>
+      <div ref={girdRefCallbackCol1}>{!gridDatas[0] ? null : gridDatas[0].map((data, index) => <Content key={index} datas={data} />)}</div>
+      <div ref={girdRefCallbackCol2}>{!gridDatas[1] ? null : gridDatas[1].map((data, index) => <Content key={index} datas={data} />)}</div>
+      <div ref={girdRefCallbackCol3}>{!gridDatas[2] ? null : gridDatas[2].map((data, index) => <Content key={index} datas={data} />)}</div>
     </div>
   );
-  
+
   const mobileLayout = (
     <div ref={layoutRef}>
-      {bookmarks.map((contents, index) => <Content key={index} datas={contents}/>)}
+      {bookmarks.filter((value) => value.content.includes(searchQuery)).map((contents, index) => <Content key={index} datas={contents}/>)}
     </div>
   );
 
@@ -71,7 +78,7 @@ export default function Index() {
         size: maxReqCount
       }
     };
-    axios.get('http://localhost:7777/test/bookmarks', config)
+    axios.get('http://localhost:7777/bookmark/testuser01/', config)
       .then(res => {
         setBookmarks([...bookmarks, ...res.data]);
       })
@@ -90,7 +97,7 @@ export default function Index() {
     if (!isScrollThrottling && isScrollDown && ((currentScrollPosY + windowHeight >= fullHeight - 100) || (lastScrollY >= document.documentElement.scrollHeight * 0.7))) {
       setScrollIsThrottling(true);
       setTimeout(async () => {
-        getBookmarksAndUpdate(3);
+        getBookmarksAndUpdate(6);
         setScrollIsThrottling(false);
       }, 300);
     }
@@ -116,6 +123,15 @@ export default function Index() {
     }
   };
 
+  const handleTyping = (e) => {
+    const currentInputValue = e.target.value;
+    if (!isTypeing) {
+      setTimeout(() => {
+        setSearchQuery(!!currentInputValue ? currentInputValue : '');
+      }, 300);
+    }
+  };
+
   useEffect(() => {
     getBookmarksAndUpdate(15);
   }, []);
@@ -127,36 +143,55 @@ export default function Index() {
     if (!gridRefs.current[0] || !gridRefs.current[1] || !gridRefs.current[0]) {
       return;
     }
+    if (!bookmarks[renderedCount].content.includes(searchQuery)) {
+      setReneredCount(renderedCount + 1);
+      return;
+    }
     const gridSizes = [
       gridRefs.current[0].scrollHeight,
       gridRefs.current[1].scrollHeight,
       gridRefs.current[2].scrollHeight
     ];
-    console.log(gridSizes);
     switch (gridSizes.indexOf(Math.min(...gridSizes))) {
       case 0:
-        setGridCol1Datas([...gridCol1Datas, bookmarks[renderedCount]]);
+        setGridDatas([
+          [...gridDatas[0], bookmarks[renderedCount]], [...gridDatas[1]], [...gridDatas[2]]
+        ]);
         setReneredCount(renderedCount + 1);
         break;
       case 1:
-        setGridCol2Datas([...gridCol2Datas, bookmarks[renderedCount]]);
+        setGridDatas([
+          [...gridDatas[0]], [...gridDatas[1], bookmarks[renderedCount]], [...gridDatas[2]]
+        ]);
         setReneredCount(renderedCount + 1);
         break;
       case 2:
-        setGridCol3Datas([...gridCol3Datas, bookmarks[renderedCount]]);
+        setGridDatas([
+          [...gridDatas[0]], [...gridDatas[1]], [...gridDatas[2], bookmarks[renderedCount]]
+        ]);
         setReneredCount(renderedCount + 1);
         break;
       default:
         break;
     }
-  }, [girdUpdateFlag]);
+  }, [girdRerenderFlag, renderedCount]);
 
   useEffect(() => {
-    if (layoutRef.current.scrollHeight < window.innerHeight) {
-      getBookmarksAndUpdate(3);
-    }
     window.addEventListener('scroll', handleScroll);
     window.addEventListener('resize', handleResize);
+    /**
+     * NOTICE : Makes too much server connection - fix later
+     */
+    if (layoutRef.current.scrollHeight < window.innerHeight * 0.7) {
+      //getBookmarksAndUpdate(6);
+      if (!isSended) {
+        setIsSended(true);
+        setTimeout(async () => {
+          getBookmarksAndUpdate(6);
+          setIsSended(false);
+        }, 100);
+      }
+    }
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
@@ -171,6 +206,7 @@ export default function Index() {
         css={searchMenuBarStlye}
         type="text"
         placeholder="태그나 단어, 구문등을 입력해주세요"
+        onChange={handleTyping}
       />
       {isDesktopLayout ? desktopLayout : mobileLayout}
     </>
