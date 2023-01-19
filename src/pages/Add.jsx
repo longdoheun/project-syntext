@@ -18,7 +18,6 @@ export default function Add() {
   const [wordInfos, onChangeInput] = useInput({
     word: '',
     meaning: '',
-    tags: '',
   });
 
   const onChangeInputTag = (e) => {
