@@ -1,65 +1,59 @@
 /** @jsxImportSource @emotion/react */
-import { css } from "@emotion/react";
-import { useEffect, useState, useRef } from "react";
-import RoundInput from "../components/RoundInput";
-import useInput from "../hooks/useInput";
-import usePrev from "../hooks/usePrev";
-import { NotoSans } from "../styles/GlobalFonts";
-import { returnMarginalWidth } from "../utils/langDetection";
+import { css } from '@emotion/react';
+import { useEffect, useState, useRef } from 'react';
+import RoundInput from '../components/RoundInput';
+import useInput from '../hooks/useInput';
+import usePrev from '../hooks/usePrev';
+import { NotoSans } from '../styles/GlobalFonts';
+import { returnMarginalWidth } from '../utils/langDetection';
 
 const RECORD_NUM_TEST = 417;
 
 export default function Add() {
+  const [tags, setTags] = useState([]);
+  const [tag, setTag] = useState('');
+  const [tagWidth, setTagWidth] = useState(5);
+  const inputRef = useRef();
+  const prevTag = usePrev(tag);
   const [wordInfos, onChangeInput] = useInput({
-    word: "",
-    meaning: "",
-    tags: "",
+    word: '',
+    meaning: '',
+    tags: '',
   });
 
-  const myRef = useRef();
-  const [tagWidth, setTagWidth] = useState(5);
-  const [tag, setTag] = useState("");
-  const prevTag = usePrev(tag);
-
-  useEffect(() => {
-    if (tag.length > prevTag.length)
-      return setTagWidth(
-        myRef.current.offsetWidth + returnMarginalWidth(tag) || 10
-      );
-    if (tag.length < prevTag.length)
-      return setTagWidth(
-        myRef.current.offsetWidth - returnMarginalWidth(prevTag)
-      );
-  }, [tag]);
-
-  const [tags, setTags] = useState([]);
-
-  const onChangeTag = (e) => {
+  const onChangeInputTag = (e) => {
     setTag(e.target.value);
   };
 
   const setTagArr = (e) => {
-    console.log(e.key);
-    if (e.key === " ") {
+    const KEYCODE_BACK_SPACE = 8;
+    const KEYCODE_SPACE = 32;
+    if (e.keyCode === KEYCODE_SPACE) {
       setTags([...tags, tag]);
-      setTag("");
+      setTag('');
       setTagWidth(10);
+      return;
     }
-
-    if (tag === "" && e.keyCode === 8) {
+    if (tag === '' && e.keyCode === KEYCODE_BACK_SPACE) {
       setTags(tags.slice(0, tags.length - 1));
     }
   };
+  
   useEffect(() => {
-    setTag("");
-  }, [tags]);
-
+    if (tag.length > prevTag.length) {
+      return setTagWidth(inputRef.current.offsetWidth + returnMarginalWidth(tag));
+    }
+    if (tag.length < prevTag.length) {
+      return setTagWidth(inputRef.current.offsetWidth - returnMarginalWidth(prevTag));
+    }
+  }, [tag]);
+  
   /**
-   * TODO : Fix bugs (blank tag)
+   * NOTICE : Is this code necessary?
    */
   useEffect(() => {
-    setTags(wordInfos.tags.split(","));
-  }, [wordInfos.tags]);
+    setTag('');
+  }, [tags]);
 
   return (
     <div css={wrapper}>
@@ -67,16 +61,16 @@ export default function Add() {
       <section css={previewStyle}>
         <div>{RECORD_NUM_TEST}</div>
         <RoundInput
-          inputDesc={"단어 / 구문 입력"}
-          inputName={"word"}
-          inputPH={"단어나 구문을 입력하세요"}
+          inputDesc={'단어 / 구문 입력'}
+          inputName={'word'}
+          inputPH={'단어나 구문을 입력하세요'}
           inputValue={wordInfos.word}
           inputChange={onChangeInput}
         />
         <RoundInput
-          inputDesc={"해석"}
-          inputName={"meaning"}
-          inputPH={"뜻 풀이를 입력하세요"}
+          inputDesc={'해석'}
+          inputName={'meaning'}
+          inputPH={'뜻 풀이를 입력하세요'}
           inputValue={wordInfos.meaning}
           inputChange={onChangeInput}
         />
@@ -91,53 +85,19 @@ export default function Add() {
           )}
           <span css={tagStyle}>
             <input
-              ref={myRef}
-              type="text"
-              maxLength={8}
-              css={tagInputStyle(tagWidth)}
+              ref={inputRef}
               name="tag"
+              type="text"
+              maxLength={10}
+              css={tagInputStyle(tagWidth)}
               value={tag}
-              onChange={onChangeTag}
+              onChange={onChangeInputTag}
               onKeyDown={setTagArr}
             />
           </span>
         </div>
       </section>
       <section css={previewStyle}>
-        {/*<div>{RECORD_NUM_TEST}</div>
-        <div css={wordStyle}>{wordInfos.word}</div>
-        <div css={meanStyle}>{wordInfos.meaning}</div>
-        <div css={tagWrapper}>
-          {tags.map((tag, index) => (
-            <span key={index + tag} css={tagStyle}>
-              {tag}
-            </span>
-          ))}
-          <span css={tagStyle}>+</span>
-        </div>
-      </section>
-      <section css={inputConStyle}>
-        <RoundInput
-          inputDesc={"단어 / 구문 입력"}
-          inputName={"word"}
-          inputPH={"단어나 구문을 입력하세요"}
-          inputValue={wordInfos.word}
-          inputChange={onChangeInput}
-        />
-        <RoundInput
-          inputDesc={"해석"}
-          inputName={"meaning"}
-          inputPH={"뜻 풀이를 입력하세요"}
-          inputValue={wordInfos.meaning}
-          inputChange={onChangeInput}
-        />
-        <RoundInput
-          inputDesc={"태그"}
-          inputName={"tags"}
-          inputPH={"쉼표(,) 로 태그 구분하기"}
-          inputValue={wordInfos.tags}
-          inputChange={onChangeInput}
-        /> */}
         <button css={btnStyle}>추가하기</button>
       </section>
     </div>

@@ -1,9 +1,9 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
-export default function usePrev(value) {
-  const ref = useRef(value);
+export default function usePrev(tagState) {
+  const ref = useRef(tagState);
   useEffect(() => {
-    ref.current = value;
-  }, [value]);
+    ref.current = tagState;
+  }, [tagState]);
   return ref.current;
 }
